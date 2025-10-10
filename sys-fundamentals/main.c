@@ -11,6 +11,7 @@ int main() {
   errno = EACCES;
   perror("Test error"); // prints: 'Test string: Permission denied'
 
+  // Using library.h and library.c
   printf("1 + 2 = %d\n", add(1,2));
   printf("5 - 3 = %d\n", sub(5,3));
 }
