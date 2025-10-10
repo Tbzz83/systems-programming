@@ -8,8 +8,9 @@
 sem_t empty;
 sem_t full;
 sem_t mutex;
-sem_t begin;
 sem_t end;
+pthread_cond_t begin = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t begin_t = PTHREAD_MUTEX_INITIALIZER;
 int next_i = 0;
 int buffer_fill = 0;
 int consumer_get_sleep_time = 1; // in seconds
@@ -78,8 +79,10 @@ void *consume(void *arg) {
 
 void *producer_waiting_room(void *arg) {
   Producer *producer = (Producer *) arg;
-  sem_wait(&begin);
+  pthread_mutex_lock(&begin_t);
+  pthread_cond_wait(&begin, &begin_t);
   produce(producer);
+  pthread_mutex_unlock(&begin_t);
   return NULL;
 }
 
@@ -95,7 +98,6 @@ int main() {
   sem_init(&empty, 0, buffer_size);
   sem_init(&full, 0, 0);
   sem_init(&mutex, 0, 1);
-  sem_init(&begin, 0, 0);
   sem_init(&end, 0, 0);
 
   Buffer buffer = {buffer_arr, buffer_size};
@@ -113,14 +115,17 @@ int main() {
     pthread_create(&(consumers[i].t), NULL, consume, &(consumers[i]));
   }
 
-  // We wait to let the producers begin so that they context switch proportionately with consumers
-  for (int i = 0; i < producer_count; i++) {
-    sem_post(&begin);
-  }
+  // Signal all producers to start producing
+  pthread_cond_broadcast(&begin);
 
   // Wait for all our producers and consumers to finish
   for (int i = 0; i < producer_count; i++) {
     pthread_join(producers[i].t, NULL);
+  }
+
+  // Wait for all our consumers and consumers to finish
+  for (int i = 0; i < consumer_count; i++) {
+    pthread_join(consumers[i].t, NULL);
   }
 
   while (true) {
