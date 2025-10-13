@@ -12,21 +12,28 @@ void display_pid(pid_t pid) {
 
 int main() {
   int child_status;
-  pid_t pid = fork();
+  pid_t child_pid = fork();
 
-  switch (pid) {
+  char *args[2];
+  char *envs[1];
+
+  switch (child_pid) {
     case -1:
       printf("Fork failed\n");
       break;
     case 0:
-      printf("I am the child\n");
-      display_pid(pid);
-      exit(EXIT_SUCCESS);
+      args[1] = NULL;
+      envs[0] = NULL;
+
+      execve("/usr/bin/ls", args, envs);
+      //execl("ls", "-la", NULL);
+      exit(EXIT_FAILURE);
   }
+
 
   // Wait collects the exit status from the child, and saves into 
   // the integer variable address you give it
-  if (wait(&child_status) == -1) {
+  if (waitpid(child_pid, &child_status, 0) == -1) {
     printf("wait error\n");
   }
 
