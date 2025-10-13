@@ -27,6 +27,11 @@ int main() {
     //return EXIT_FAILURE;
   }
 
+  // NOTE
+  // `execve("ls", arg_vec, env_vec)` will fail because the absolute path
+  // of the `ls` executable is not provided. Use execvp() instead, as it looks
+  // at $PATH by default
+
   // This text doesn't print, because execve loads the program
   // requested, and never returns if successful.
   printf("Text after execve\n");
