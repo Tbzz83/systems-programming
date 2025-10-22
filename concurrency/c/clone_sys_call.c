@@ -19,6 +19,8 @@ static int child_func(void *arg) {
 
     printf("\n>>> child_func() >>> BEGIN\n");
     printf("child_func: child thread pid = %d\n", getpid());
+    printf("child_func: child thread tid = %d\n", gettid());
+    printf("child_func: child thread parent pid = %d\n", getppid());
 
     if (close(*fd) == -1) {
         printf("close() error in child_func\n");
@@ -38,7 +40,10 @@ int main(int argc, char *argv[]) {
 
     fd = open("/dev/null", O_RDWR);
 
-    flags = (argc > 1) ? CLONE_FILES : 0;
+    // CLONE_PARENT makes the parent process the same as the parent
+    // of the process who called clone(). In this case, the parent is
+    // bash
+    flags = (argc > 1) ? CLONE_FILES | CLONE_PARENT: 0;
 
     stack = malloc(STACK_SIZE);
 
@@ -57,9 +62,10 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    printf("calling proccess here: pid = %d\n", getpid());
+
     // Create our child thread
     int child_thread_pid = clone(child_func, stack_top, flags | CHILD_SIG, (void *) &fd);
-
     if (child_thread_pid == -1) {
         printf("clone() failed.\n");
         exit(EXIT_FAILURE);
@@ -67,7 +73,6 @@ int main(int argc, char *argv[]) {
 
     // clone does return the pid of the child
     printf("clone() return value (child thread pid) = %d\n", child_thread_pid);
-
 
     if (waitpid(child_thread_pid, NULL, (CHILD_SIG != SIGCHLD) ? __WCLONE : 0) == -1 ) {
         printf("waitpid() error\n");
