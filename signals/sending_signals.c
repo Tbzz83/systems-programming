@@ -24,6 +24,7 @@ int main() {
     printf("Checking if pid %d exists\n", child_id);
     // Set child_id to something fun here to see what happens if the process doesn't exist.
     if (kill(child_id, 0) == -1) {
+        // ESRCH no such error has int value of 3.
         printf("pid %d does not exist. errno %d. Terminating...\n", child_id, errno);
         exit(EXIT_FAILURE);
     }
