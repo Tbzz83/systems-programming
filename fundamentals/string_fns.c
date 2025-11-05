@@ -13,6 +13,5 @@ int main(){
   printf("%s\n", string1);
   printf("Hello, world\n");
 
-
   return 0;
 }
