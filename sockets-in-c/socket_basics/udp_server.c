@@ -33,10 +33,16 @@ int main()
     }
 
     char client_message[256];
+    struct sockaddr_in client_address;
+    socklen_t client_address_len = sizeof(client_address);
 
-    recvfrom(server_socket, client_message, sizeof(client_message), 0, NULL, NULL);
+    recvfrom(server_socket, client_message, sizeof(client_message), 0, (struct sockaddr * restrict)&client_address, &client_address_len);
 
     printf("Client message: %s\n", client_message);
+
+    printf("Client sin_port: %d\n", client_address.sin_port);
+    printf("Client sin_family: %d\n", client_address.sin_family);
+    printf("Client s_addr: %d\n", client_address.sin_addr.s_addr);
 
     close(server_socket);
 
