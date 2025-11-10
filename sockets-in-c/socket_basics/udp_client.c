@@ -26,6 +26,7 @@ int main()
     server_address.sin_family = AF_INET;
     // htons converts port to appropriate data format
     server_address.sin_port = htons(9002); // Connect to port 9002 on server
+    // htons = host to network short (converts to network byte order - Big Endian)
     // server_address.sin_addr is a struct with a specific 
     // field 's_addr'
     server_address.sin_addr.s_addr = INADDR_ANY; //INADDR_ANY = 0.0.0.0
