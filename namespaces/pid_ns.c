@@ -25,31 +25,16 @@ int pid_ns() {
     printf("-------------------------------\n");
     printf("Hello from pid_ns() function!\n");
 
-    const int STACK_SIZE = 65536;
-    char *stack;
-    char *stack_top;
-    int bytes_written, fd, flags;
 
-    fd = open("/dev/null", O_RDWR);
+    printf("calling proccess here: pid = %d\n", getpid());
 
     // CLONE_PARENT makes the parent process the same as the parent
     // of the process who called clone(). In this case, the parent is
     // bash
-    flags = CLONE_NEWPID;
-
-    stack = malloc(STACK_SIZE);
-
-    if (stack == NULL) {
-        printf("malloc() failed.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    stack_top = stack + STACK_SIZE;
-
-    printf("calling proccess here: pid = %d\n", getpid());
+    int flags = CLONE_NEWPID;
 
     // Create our child thread
-    pid_t child_pid = clone(child_func, stack_top, flags | SIGCHLD, NULL);
+    pid_t child_pid = clone(child_func, create_child_stack(), flags | SIGCHLD, NULL);
     if (child_pid == -1) {
         perror("clone");
         printf("Did you forget to run using sudo? Unless you use CLONE_NEWUSER, CLONE_NEWPID is a privileged operation!\n");
