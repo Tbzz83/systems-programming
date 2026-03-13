@@ -1,3 +1,4 @@
+
 #define _GNU_SOURCE
 #include "namespaces.h"
 #include <asm-generic/errno-base.h>
@@ -14,16 +15,15 @@
 #define CHILD_SIG SIGUSR1
 #endif
 
-int pid_ns_child_func(void* arg) {
-    printf("\nhello from pid_ns child_func()\n");
-    printf("child proccess here: `getpid() = %d` (note that my pid is 1 because CLONE_NEWPID was used!)\n", getpid());
-    printf("(note that ps won't work correctly, because that uses the virtual `procfs` filesystem mount, and this\nprocess only has a new process namespace. all other processes when called using `ps` can still be seen!)\n");
+int uid_ns_child_func(void* arg) {
+    printf("\nhello from uid_ns child_func()\n");
+    printf("child proccess here: `getpid() = %d`\n", getpid());
     return EXIT_SUCCESS;
 }
 
-int pid_ns() {
+int uid_ns() {
     printf("-------------------------------\n");
-    printf("Hello from pid_ns() function!\n");
+    printf("Hello from uid_ns() function!\n");
 
 
     printf("calling proccess here: pid = %d\n", getpid());
@@ -31,10 +31,10 @@ int pid_ns() {
     // CLONE_PARENT makes the parent process the same as the parent
     // of the process who called clone(). In this case, the parent is
     // bash
-    int flags = CLONE_NEWPID;
+    int flags = CLONE_NEWUSER;
 
     // Create our child thread
-    pid_t child_pid = clone(pid_ns_child_func, create_child_stack(), flags | SIGCHLD, NULL);
+    pid_t child_pid = clone(uid_ns_child_func, create_child_stack(), flags | SIGCHLD, NULL);
     if (child_pid == -1) {
         perror("clone");
         printf("Did you forget to run using sudo? Unless you use CLONE_NEWUSER, CLONE_NEWPID is a privileged operation!\n");
