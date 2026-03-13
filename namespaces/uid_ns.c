@@ -18,6 +18,8 @@
 int uid_ns_child_func(void* arg) {
     printf("\nhello from uid_ns child_func()\n");
     printf("child proccess here: `getpid() = %d`\n", getpid());
+    printf("child process uid: %d\n", getuid());
+    printf("child process euid: %d\n", geteuid());
     return EXIT_SUCCESS;
 }
 
